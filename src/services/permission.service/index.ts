@@ -1,0 +1,1 @@
+export { assertStaffPermission } from "./assertStaffPermission.js";

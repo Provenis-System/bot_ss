@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+model ScanCase {
+  id                String      @id @default(cuid())
+  staffDiscordId    String      @map("staff_discord_id")
+  echoScanId        String?     @unique @map("echo_scan_id")
+  echoPin           String?     @map("echo_pin")
+  echoScanUrl       String?     @map("echo_scan_url")
+  status            ScanStatus
+  trackingChannelId String      @map("tracking_channel_id")
+  trackingMessageId String?     @unique @map("tracking_message_id")
+  resultSummary     String?     @map("result_summary")
+  resultRaw         Json?       @map("result_raw")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  completedAt       DateTime?   @map("completed_at")
+  expiresAt         DateTime?   @map("expires_at")
+  logs              ScanLog[]
+
+  @@index([status, expiresAt])
+  @@index([staffDiscordId, createdAt])
+  @@map("scan_cases")
+}
+
+model ScanLog {
+  id         String    @id @default(cuid())
+  scanCaseId String    @map("scan_case_id")
+  action     String
+  message    String
+  metadata   Json?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  scanCase   ScanCase  @relation(fields: [scanCaseId], references: [id], onDelete: Cascade)
+
+  @@index([scanCaseId, createdAt])
+  @@map("scan_logs")
+}
+
+model BotSetting {
+  key       String   @id
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("bot_settings")
+}
