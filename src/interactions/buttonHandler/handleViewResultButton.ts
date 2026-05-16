@@ -38,13 +38,9 @@ export async function handleViewResultButton(interaction: ButtonInteraction, cas
     : null;
 
   await interaction.reply({
-    content: [
-      `Caso: ${scanCase.id}`,
-      `Status: ${scanCase.status}`,
-      `Resumo: ${scanCase.resultSummary ?? "sem resumo"}`,
-      resultView ? resultView.title : "Resultado FiveM indisponível",
-      ...(resultView?.lines ?? ["Nenhum payload detalhado foi salvo para este scan."])
-    ].join("\n"),
+    content: resultView
+      ? resultView.lines.join("\n")
+      : "Nenhum payload detalhado foi salvo para este scan.",
     flags: MessageFlags.Ephemeral
   });
 }

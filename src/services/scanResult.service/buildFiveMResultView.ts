@@ -206,42 +206,12 @@ function extractInfoLines(scan: EchoScanDetailsResponse): string[] {
   const info = asObject(results?.info);
   const items: string[] = [];
 
-  const clientVersion = asString(results?.client_ver);
-  const serverVersion = asString(results?.server_ver);
   const os = asString(info?.os);
-  const country = asString(info?.country);
-  const timezone = asString(info?.timezone);
-  const vpn = asString(info?.vpn);
-  const vm = asString(info?.vm);
   const installationDate = asString(info?.installationDate);
   const recycleModified = asString(info?.recycleBinModified);
 
-  if (clientVersion) {
-    items.push(`Client Echo: ${clientVersion}`);
-  }
-
-  if (serverVersion) {
-    items.push(`Servidor Echo: ${serverVersion}`);
-  }
-
   if (os) {
     items.push(`Sistema: ${os}`);
-  }
-
-  if (country) {
-    items.push(`País: ${country}`);
-  }
-
-  if (timezone) {
-    items.push(`Fuso: UTC${timezone}`);
-  }
-
-  if (vpn) {
-    items.push(`VPN: ${vpn}`);
-  }
-
-  if (vm) {
-    items.push(`Máquina virtual: ${vm}`);
   }
 
   if (installationDate) {
@@ -253,25 +223,6 @@ function extractInfoLines(scan: EchoScanDetailsResponse): string[] {
   }
 
   return items;
-}
-
-function extractHeaderLines(scan: EchoScanDetailsResponse): string[] {
-  const results = asObject(scan.results);
-  const info = asObject(results?.info);
-  const primaryAccount = scan.accounts?.[0] ?? "Indisponível";
-  const vpn = asString(info?.vpn) ?? "Indisponível";
-  const os = asString(info?.os) ?? "Indisponível";
-
-  return [
-    `UUID: ${scan.uuid}`,
-    `PIN: ${scan.pin ?? "Indisponível"}`,
-    `Jogo: ${scan.game ?? "FiveM / GTA-V RP"}`,
-    `Resultado: ${formatDetectionLabel(scan.detection ?? scan.result)}`,
-    `Conta principal: ${primaryAccount}`,
-    `VPN: ${vpn}`,
-    `Sistema: ${os}`,
-    `Data do scan: ${formatDate(scan.time)}`
-  ];
 }
 
 function extractPcaLines(scan: EchoScanDetailsResponse): string[] {
@@ -361,24 +312,18 @@ function truncateLines(lines: string[], maxLength = 1800): string[] {
 
 export function buildFiveMResultView(scan: EchoScanDetailsResponse): ScanResultView {
   const detectionLabel = formatDetectionLabel(scan.detection ?? scan.result);
-  const signals = collectSignals(scan.results);
   const accountLines = formatAccounts(scan.accounts);
   const sections = splitIndications(scan.indications);
   const traceEntries = extractTraceEntries(scan);
   const customEntries = extractCustomEntries(scan);
-  const headerLines = extractHeaderLines(scan);
   const infoLines = extractInfoLines(scan);
-  const pcaLines = extractPcaLines(scan);
   const results = asObject(scan.results);
   const startTimes = asObject(results?.start_time);
 
   const lines = [
-    "Cabeçalho:",
-    ...headerLines,
-    "",
     "Informações do Scan:",
+    `UUID: ${scan.uuid}`,
     `Marcado para ban: ${formatBoolean(scan.marked)}`,
-    `Scan público: ${formatBoolean(scan.public)}`,
     ...infoLines,
     `Início do PCA: ${formatUnixDate(asNumber(startTimes?.pca))}`,
     `Início do DNS: ${formatUnixDate(asNumber(startTimes?.dns))}`,
@@ -419,20 +364,8 @@ export function buildFiveMResultView(scan: EchoScanDetailsResponse): ScanResultV
     ],
     8
   );
-  appendSection(lines, "PCA:", [...sections.pca.map(formatIndication), ...pcaLines], 8);
 
-  if (sections.info.length > 0 || signals.length > 0 || traceEntries.some((entry) => entry.severity === "info")) {
-    appendSection(
-      lines,
-      "Informativo:",
-      [
-        ...sections.info.map(formatIndication),
-        ...traceEntries.filter((entry) => entry.severity === "info").map((entry, index) => formatBullet(`${entry.name}${entry.source ? ` | origem: ${entry.source}` : ""}`, index)),
-        ...signals.map((signal, index) => `${sections.info.length + index + 1}. ${signal}`)
-      ],
-      8
-    );
-  }
+  lines.push(`Resultado FiveM: ${detectionLabel} | ${scan.pin ?? "sem pin"}`);
 
   return {
     title: `Resultado FiveM: ${detectionLabel} | ${scan.pin ?? "sem pin"}`,
