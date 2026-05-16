@@ -8,6 +8,7 @@ export function formatDetectionLabel(detection?: string | null): string {
       return "Unusual";
     case "cheating":
     case "detected":
+    case "cheat":
       return "Detected";
     default:
       return detection?.trim() || "Indefinido";

@@ -8,6 +8,7 @@ type UpdateTrackingPanelInput = {
   trackingMessageId: string;
   caseId: string;
   staffDiscordId: string;
+  selectedGame?: string | null;
   status: string;
   echoScanId?: string | null;
   createdAt: Date;
@@ -27,6 +28,7 @@ export async function updateTrackingPanel(input: UpdateTrackingPanelInput) {
     buildTrackingPanel({
       caseId: input.caseId,
       staffDiscordId: input.staffDiscordId,
+      selectedGame: input.selectedGame,
       status: input.status,
       echoScanId: input.echoScanId,
       createdAt: input.createdAt,

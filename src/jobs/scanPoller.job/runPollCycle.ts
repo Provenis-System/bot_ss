@@ -2,6 +2,7 @@ import { ScanStatus, type ScanCase } from "@prisma/client";
 import type { Client } from "discord.js";
 
 import { getEchoScanDetails, getEchoScansByPin } from "../../services/echo.service/index.js";
+import { EchoProcessingError } from "../../services/echo.service/http.js";
 import { buildFiveMSummary } from "../../services/scanResult.service/index.js";
 import { updateTrackingPanel } from "../../panels/trackingPanel.js";
 import {
@@ -47,6 +48,7 @@ async function expireCase(client: Client<true>, scanCase: ScanCase) {
       trackingMessageId: scanCase.trackingMessageId,
       caseId: scanCase.id,
       staffDiscordId: scanCase.staffDiscordId,
+      selectedGame: scanCase.selectedGame,
       status: ScanStatus.EXPIRED,
       echoScanId: scanCase.echoScanId,
       createdAt: scanCase.createdAt,
@@ -89,6 +91,7 @@ async function syncCase(client: Client<true>, scanCase: ScanCase) {
             trackingMessageId: scanCase.trackingMessageId,
             caseId: scanCase.id,
             staffDiscordId: scanCase.staffDiscordId,
+            selectedGame: scanCase.selectedGame,
             status: ScanStatus.PENDING,
             echoScanId: null,
             createdAt: scanCase.createdAt,
@@ -120,7 +123,7 @@ async function syncCase(client: Client<true>, scanCase: ScanCase) {
     }
 
     const response = await getEchoScanDetails(resolvedScanId);
-    const nextStatus = response.detection ? ScanStatus.COMPLETED : ScanStatus.RUNNING;
+  const nextStatus = response.detection || response.result ? ScanStatus.COMPLETED : ScanStatus.RUNNING;
     const isDone = FINAL_STATUSES.has(nextStatus);
     const summary = buildResultSummary(scanCase, buildFiveMSummary(response));
 
@@ -141,6 +144,7 @@ async function syncCase(client: Client<true>, scanCase: ScanCase) {
         trackingMessageId: scanCase.trackingMessageId,
         caseId: scanCase.id,
         staffDiscordId: scanCase.staffDiscordId,
+        selectedGame: scanCase.selectedGame,
         status: nextStatus,
         echoScanId: response.uuid,
         createdAt: scanCase.createdAt,
@@ -156,6 +160,40 @@ async function syncCase(client: Client<true>, scanCase: ScanCase) {
       metadata: { summary, echoScanId: response.uuid }
     });
   } catch (error) {
+    if (error instanceof EchoProcessingError) {
+      await updateScanStatus({
+        scanCaseId: scanCase.id,
+        status: ScanStatus.RUNNING,
+        echoScanId: scanCase.echoScanId,
+        resultSummary: "Scan localizado e ainda em processamento na Echo.",
+        completedAt: null,
+        expiresAt: scanCase.expiresAt
+      });
+
+      if (scanCase.trackingMessageId) {
+        await updateTrackingPanel({
+          client,
+          trackingChannelId: scanCase.trackingChannelId,
+          trackingMessageId: scanCase.trackingMessageId,
+          caseId: scanCase.id,
+          staffDiscordId: scanCase.staffDiscordId,
+          selectedGame: scanCase.selectedGame,
+          status: ScanStatus.RUNNING,
+          echoScanId: scanCase.echoScanId,
+          createdAt: scanCase.createdAt,
+          resultSummary: "Scan localizado e ainda em processamento na Echo.",
+          viewResultEnabled: false
+        });
+      }
+
+      await logScanAction({
+        scanCaseId: scanCase.id,
+        action: "SCAN_STILL_PROCESSING",
+        message: "A Echo informou que o scan ainda está em processamento."
+      });
+      return;
+    }
+
     logger.error({ err: error, scanCaseId: scanCase.id }, "Falha ao consultar status na Echo.");
     await logScanAction({
       scanCaseId: scanCase.id,

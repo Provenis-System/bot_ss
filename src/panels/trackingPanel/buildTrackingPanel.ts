@@ -3,6 +3,7 @@ import { ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, SectionBuil
 type TrackingPanelInput = {
   caseId: string;
   staffDiscordId: string;
+  selectedGame?: string | null;
   status: string;
   echoScanId?: string | null;
   createdAt: Date;
@@ -30,6 +31,7 @@ export function buildTrackingPanel(input: TrackingPanelInput) {
             [
               `Caso: ${input.caseId}`,
               `Staff: <@${input.staffDiscordId}>`,
+              `Jogo: ${input.selectedGame ?? "não informado"}`,
               `Scan ID: ${input.echoScanId ?? "aguardando vinculação"}`,
               `Criado em: <t:${Math.floor(input.createdAt.getTime() / 1000)}:f>`,
               input.resultSummary ? `Resumo: ${input.resultSummary}` : "Resumo: aguardando processamento"

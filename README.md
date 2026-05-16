@@ -14,8 +14,8 @@ Bot Discord em TypeScript para equipe de SS/telagem de FiveM com painel fixo, ge
 ## Fluxo
 
 1. O bot garante um painel fixo no canal configurado em `KEY_PANEL_CHANNEL_ID`.
-2. O botão `Gerar chave` valida o cargo do staff.
-3. O bot gera um PIN temporário na Echo Scanner, persiste o caso e responde em mensagem ephemeral.
+2. O botão `Gerar chave` valida o cargo do staff e abre um seletor privado de jogo.
+3. O bot gera um PIN temporário na Echo Scanner para o jogo escolhido, persiste o caso e responde em mensagem ephemeral.
 4. Uma mensagem de acompanhamento é criada no canal configurado em `TRACKING_CHANNEL_ID`.
 5. O job de polling consulta periodicamente a API da Echo, procura o scan pelo PIN e depois carrega o detalhe por `scanID`.
 6. Quando o scan termina, o painel de acompanhamento é atualizado e o botão `Ver resultado` é habilitado somente para visualização privada.
@@ -53,6 +53,8 @@ postgresql://postgres:postgres@localhost:5432/bot_ss?schema=public
 ```
 
 O campo `DATABASE_SCHEMA` foi mantido para padronização operacional do projeto, mas o Prisma lê o schema efetivo a partir da URL de conexão.
+
+No startup do bot, a aplicação também tenta executar `CREATE SCHEMA IF NOT EXISTS` com base em `DATABASE_SCHEMA`. Se o usuário do Postgres não tiver permissão para criar schema, será necessário conceder a permissão no banco antes do primeiro uso.
 
 ## Subida local
 

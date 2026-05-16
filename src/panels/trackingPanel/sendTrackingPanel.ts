@@ -7,6 +7,7 @@ type SendTrackingPanelInput = {
   client: Client<true>;
   caseId: string;
   staffDiscordId: string;
+  selectedGame?: string | null;
   status: string;
   echoScanId?: string | null;
   createdAt: Date;
@@ -23,6 +24,7 @@ export async function sendTrackingPanel(input: SendTrackingPanelInput): Promise<
     buildTrackingPanel({
       caseId: input.caseId,
       staffDiscordId: input.staffDiscordId,
+      selectedGame: input.selectedGame,
       status: input.status,
       echoScanId: input.echoScanId,
       createdAt: input.createdAt,

@@ -2,7 +2,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
-  MediaGalleryBuilder,
   SectionBuilder,
   SeparatorBuilder,
   TextDisplayBuilder
@@ -25,6 +24,5 @@ export function buildKeyPanel() {
           new TextDisplayBuilder().setContent("Somente staff autorizado pode iniciar uma varredura.")
         )
         .setButtonAccessory(generateButton)
-    )
-    .addMediaGalleryComponents(new MediaGalleryBuilder());
+    );
 }

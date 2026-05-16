@@ -3,12 +3,15 @@ import {
   Client,
   Events,
   GatewayIntentBits,
+  MessageFlags,
   type TextChannel
 } from "discord.js";
 
 import { env } from "./config/env.js";
+import { ensureDatabaseSchema } from "./database/ensureSchema.js";
 import { ensureKeyPanel } from "./panels/keyPanel.js";
 import { handleButtonInteraction } from "./interactions/buttonHandler.js";
+import { handleSelectMenuInteraction } from "./interactions/selectMenuHandler.js";
 import { startScanPoller } from "./jobs/scanPoller.job.js";
 import { prisma } from "./database/prisma.js";
 import { logger } from "./utils/logger.js";
@@ -24,19 +27,27 @@ client.once(Events.ClientReady, async (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isButton()) {
-    return;
-  }
-
   try {
-    await handleButtonInteraction(client as Client<true>, interaction);
+    if (interaction.isButton()) {
+      await handleButtonInteraction(client as Client<true>, interaction);
+      return;
+    }
+
+    if (interaction.isStringSelectMenu()) {
+      await handleSelectMenuInteraction(client as Client<true>, interaction);
+      return;
+    }
   } catch (error) {
-    logger.error({ err: error, customId: interaction.customId }, "Falha ao processar interação de botão.");
+    logger.error({ err: error, customId: interaction.isMessageComponent() ? interaction.customId : undefined }, "Falha ao processar interação do Discord.");
 
     const replyPayload = {
       content: error instanceof Error ? error.message : "Falha inesperada ao processar ação.",
-      ephemeral: true
+      flags: [MessageFlags.Ephemeral] as const
     };
+
+    if (!interaction.isRepliable()) {
+      return;
+    }
 
     if (interaction.deferred || interaction.replied) {
       await interaction.followUp(replyPayload).catch(() => null);
@@ -51,6 +62,7 @@ client.on(Events.Error, (error) => {
 });
 
 async function bootstrap() {
+  await ensureDatabaseSchema();
   await prisma.$connect();
   await client.login(env.DISCORD_TOKEN);
 

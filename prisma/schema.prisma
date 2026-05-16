@@ -19,6 +19,7 @@ enum ScanStatus {
 model ScanCase {
   id                String      @id @default(cuid())
   staffDiscordId    String      @map("staff_discord_id")
+  selectedGame      String?     @map("selected_game")
   echoScanId        String?     @unique @map("echo_scan_id")
   echoPin           String?     @map("echo_pin")
   echoScanUrl       String?     @map("echo_scan_url")

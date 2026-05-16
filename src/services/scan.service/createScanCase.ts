@@ -4,6 +4,7 @@ import { prisma } from "../../database/prisma.js";
 
 type CreateScanCaseInput = {
   staffDiscordId: string;
+  selectedGame?: string | null;
   echoScanId?: string | null;
   echoPin?: string | null;
   echoScanUrl?: string | null;
@@ -15,6 +16,7 @@ export async function createScanCase(input: CreateScanCaseInput) {
   return prisma.scanCase.create({
     data: {
       staffDiscordId: input.staffDiscordId,
+      selectedGame: input.selectedGame,
       echoScanId: input.echoScanId,
       echoPin: input.echoPin,
       echoScanUrl: input.echoScanUrl,

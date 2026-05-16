@@ -6,7 +6,7 @@ import { getScanCaseByMessageId, logScanAction } from "../../services/scan.servi
 import type { EchoScanDetailsResponse } from "../../types/scan.js";
 
 export async function handleViewResultButton(interaction: ButtonInteraction, caseId: string) {
-  assertStaffPermission(interaction);
+  await assertStaffPermission(interaction);
 
   const scanCase = await getScanCaseByMessageId(interaction.message.id);
 
@@ -43,10 +43,7 @@ export async function handleViewResultButton(interaction: ButtonInteraction, cas
       `Status: ${scanCase.status}`,
       `Resumo: ${scanCase.resultSummary ?? "sem resumo"}`,
       resultView ? resultView.title : "Resultado FiveM indisponível",
-      ...(resultView?.lines ?? ["Nenhum payload detalhado foi salvo para este scan."]),
-      "",
-      "JSON bruto armazenado:",
-      scanCase.resultRaw ? JSON.stringify(scanCase.resultRaw, null, 2) : "indisponível"
+      ...(resultView?.lines ?? ["Nenhum payload detalhado foi salvo para este scan."])
     ].join("\n"),
     flags: MessageFlags.Ephemeral
   });

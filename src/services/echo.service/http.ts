@@ -1,5 +1,12 @@
 import { env } from "../../config/env.js";
 
+export class EchoProcessingError extends Error {
+  constructor(message = "Scan is still processing") {
+    super(message);
+    this.name = "EchoProcessingError";
+  }
+}
+
 export async function echoRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(new URL(path, env.ECHO_API_BASE_URL), {
     ...init,
@@ -21,6 +28,10 @@ export async function echoRequest<T>(path: string, init?: RequestInit): Promise<
       (data && typeof data === "object" && "message" in data && data.message) ||
       (data && typeof data === "object" && "error" in data && data.error) ||
       `Echo API retornou ${response.status}`;
+
+    if (response.status === 400 && message.toLowerCase().includes("still processing")) {
+      throw new EchoProcessingError(message);
+    }
 
     throw new Error(message);
   }
