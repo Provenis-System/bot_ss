@@ -1,0 +1,66 @@
+import {
+  ActionRowBuilder,
+  ChannelSelectMenuBuilder,
+  ChannelType,
+  ContainerBuilder,
+  RoleSelectMenuBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder
+} from "discord.js";
+
+import type { TicketConfig } from "../../services/ticketConfig.service/index.js";
+
+function divider() {
+  return new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true);
+}
+
+function buildStatusLine(config: TicketConfig): string {
+  const category = config.categoryId ? `<#${config.categoryId}>` : "Não configurado";
+  const roles =
+    config.allowedRoleIds.length > 0
+      ? config.allowedRoleIds.map((id) => `<@&${id}>`).join(", ")
+      : "Nenhum";
+  return `-# Categoria: ${category} | Cargos: ${roles}`;
+}
+
+export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
+  const categorySelect = new ChannelSelectMenuBuilder()
+    .setCustomId("ticket:config:category")
+    .setPlaceholder("Selecione a categoria dos tickets")
+    .setChannelTypes(ChannelType.GuildCategory)
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  const roleSelect = new RoleSelectMenuBuilder()
+    .setCustomId("ticket:config:roles")
+    .setPlaceholder("Selecione os cargos com acesso")
+    .setMinValues(1)
+    .setMaxValues(10);
+
+  return new ContainerBuilder()
+    .setAccentColor(0x5865f2)
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        `## ⚙️ PAINEL DE CONFIGURAÇÃO\n-# Sistema de Tickets — Forensic Screenshare\n${buildStatusLine(config)}`
+      )
+    )
+    .addSeparatorComponents(divider())
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "**📁 Categoria dos Tickets**\nSelecione a categoria onde os canais de ticket serão criados."
+      )
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(categorySelect)
+    )
+    .addSeparatorComponents(divider())
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "**👥 Cargos com Acesso**\nSelecione quais cargos poderão visualizar os canais de ticket."
+      )
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect)
+    );
+}

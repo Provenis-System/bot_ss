@@ -19,6 +19,7 @@ const envSchema = z.object({
   ECHO_API_BASE_URL: z.string().url(),
   STAFF_ROLE_ID: z.string().min(1),
   KEY_PANEL_CHANNEL_ID: z.string().min(1),
+  TICKET_CONFIG_CHANNEL_ID: z.string().min(1),
   TRACKING_CHANNEL_ID: z.string().min(1),
   LOG_CHANNEL_ID: z.string().min(1),
   SCAN_POLL_INTERVAL_SECONDS: z.coerce.number().int().positive().default(30),

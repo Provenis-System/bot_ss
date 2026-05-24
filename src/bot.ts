@@ -10,6 +10,7 @@ import {
 import { env } from "./config/env.js";
 import { ensureDatabaseSchema } from "./database/ensureSchema.js";
 import { ensureKeyPanel } from "./panels/keyPanel.js";
+import { ensureTicketConfigPanel } from "./panels/ticketConfigPanel.js";
 import { handleButtonInteraction } from "./interactions/buttonHandler.js";
 import { handleSelectMenuInteraction } from "./interactions/selectMenuHandler.js";
 import { startScanPoller } from "./jobs/scanPoller.job.js";
@@ -23,6 +24,7 @@ const client = new Client({
 client.once(Events.ClientReady, async (readyClient) => {
   logger.info({ botUserId: readyClient.user.id }, "Bot conectado.");
   await ensureKeyPanel(readyClient);
+  await ensureTicketConfigPanel(readyClient);
   startScanPoller(readyClient);
 });
 
@@ -33,7 +35,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
-    if (interaction.isStringSelectMenu()) {
+    if (
+      interaction.isStringSelectMenu() ||
+      interaction.isChannelSelectMenu() ||
+      interaction.isRoleSelectMenu()
+    ) {
       await handleSelectMenuInteraction(client as Client<true>, interaction);
       return;
     }

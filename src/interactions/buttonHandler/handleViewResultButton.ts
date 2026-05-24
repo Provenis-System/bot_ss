@@ -1,78 +1,17 @@
 import {
-  ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ContainerBuilder,
   MessageFlags,
-  SeparatorBuilder,
-  SeparatorSpacingSize,
-  TextDisplayBuilder,
   type ButtonInteraction
 } from "discord.js";
 
 import { assertStaffPermission } from "../../services/permission.service/index.js";
-import { buildFiveMResultView } from "../../services/scanResult.service/index.js";
+import {
+  buildFiveMResultView,
+  buildResultContainer
+} from "../../services/scanResult.service/index.js";
 import { getScanCaseByMessageId, logScanAction } from "../../services/scan.service/index.js";
-import type { EchoScanDetailsResponse, ScanResultView } from "../../types/scan.js";
-
-function divider() {
-  return new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true);
-}
-
-function buildResultContainer(view: ScanResultView, caseId: string): ContainerBuilder {
-  const accentColor = view.hasGrave ? 0xe74c3c : view.hasSuspicious ? 0xf39c12 : 0x2ecc71;
-
-  const container = new ContainerBuilder()
-    .setAccentColor(accentColor)
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        `## 🔍 Resultado da Varredura\n-# ${view.title}`
-      )
-    )
-    .addSeparatorComponents(divider())
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        `**📋 Informações do Scan**\n${view.info.join("\n")}`
-      )
-    )
-    .addSeparatorComponents(divider())
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        [
-          "**🆔 Identificadores / Contas**",
-          ...view.accounts,
-          ...(view.accountOverflow > 0 ? [`... e mais ${view.accountOverflow} conta(s).`] : [])
-        ].join("\n")
-      )
-    );
-
-  for (const section of view.sections) {
-    container
-      .addSeparatorComponents(divider())
-      .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-          [
-            `**${section.label}**`,
-            ...section.items,
-            ...(section.overflow > 0 ? [`... e mais ${section.overflow} item(ns).`] : [])
-          ].join("\n")
-        )
-      );
-  }
-
-  container
-    .addSeparatorComponents(divider())
-    .addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`scan:view-pca:${caseId}`)
-          .setLabel("📂 PCA")
-          .setStyle(ButtonStyle.Secondary)
-      )
-    );
-
-  return container;
-}
+import type { EchoScanDetailsResponse } from "../../types/scan.js";
 
 export async function handleViewResultButton(interaction: ButtonInteraction, caseId: string) {
   await assertStaffPermission(interaction);
@@ -112,8 +51,19 @@ export async function handleViewResultButton(interaction: ButtonInteraction, cas
 
   const resultView = buildFiveMResultView(scanCase.resultRaw as unknown as EchoScanDetailsResponse);
 
+  const buttons = [
+    new ButtonBuilder()
+      .setCustomId(`scan:view-pca:${scanCase.id}`)
+      .setLabel("📂 PCA")
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(`ticket:open:${scanCase.id}`)
+      .setLabel("❓ Dúvida com resultado?")
+      .setStyle(ButtonStyle.Secondary)
+  ];
+
   await interaction.reply({
-    components: [buildResultContainer(resultView, scanCase.id)],
+    components: [buildResultContainer(resultView, scanCase.id, buttons)],
     flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
   });
 }
