@@ -1,6 +1,7 @@
 import type { ButtonInteraction, Client } from "discord.js";
 
 import { handleGenerateKeyButton } from "./handleGenerateKeyButton.js";
+import { handlePcaButton } from "./handlePcaButton.js";
 import { handleViewResultButton } from "./handleViewResultButton.js";
 
 export async function handleButtonInteraction(client: Client<true>, interaction: ButtonInteraction) {
@@ -12,5 +13,11 @@ export async function handleButtonInteraction(client: Client<true>, interaction:
   if (interaction.customId.startsWith("scan:view-result:")) {
     const [, , caseId] = interaction.customId.split(":");
     await handleViewResultButton(interaction, caseId);
+    return;
+  }
+
+  if (interaction.customId.startsWith("scan:view-pca:")) {
+    const [, , caseId] = interaction.customId.split(":");
+    await handlePcaButton(interaction, caseId);
   }
 }

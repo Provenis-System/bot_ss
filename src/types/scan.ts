@@ -20,22 +20,9 @@ export type EchoScanLookupItem = {
   uuid: string;
   game?: string | null;
   result?: string | null;
-  indications?: EchoScanIndication[] | null;
   marked?: boolean | null;
   public?: boolean | null;
   time?: string | null;
-};
-
-export type EchoScanIndication = {
-  name?: string | null;
-  fileName?: string | null;
-  level?: number | null;
-  instance?: boolean | null;
-  detectionId?: string | null;
-  detectionSet?: string | null;
-  echo?: boolean | null;
-  customDetection?: boolean | null;
-  customString?: boolean | null;
 };
 
 export type EchoScanDetailsResponse = {
@@ -43,7 +30,6 @@ export type EchoScanDetailsResponse = {
   pin?: string | null;
   game?: string | null;
   result?: string | null;
-  indications?: EchoScanIndication[] | null;
   marked?: boolean | null;
   public?: boolean | null;
   accounts?: string[] | null;
@@ -52,7 +38,21 @@ export type EchoScanDetailsResponse = {
   results?: unknown;
 };
 
+export type ScanResultSection = {
+  label: string;
+  items: string[];
+  overflow: number;
+};
+
 export type ScanResultView = {
   title: string;
+  detection: string;
+  pin: string;
+  hasGrave: boolean;
+  hasSuspicious: boolean;
+  info: string[];
+  accounts: string[];
+  accountOverflow: number;
+  sections: ScanResultSection[];
   lines: string[];
 };

@@ -1,6 +1,7 @@
 export { createScanCase } from "./createScanCase.js";
 export { getPanelMessageSetting } from "./getPanelMessageSetting.js";
 export { getScanCaseByEchoId } from "./getScanCaseByEchoId.js";
+export { getScanCaseById } from "./getScanCaseById.js";
 export { getScanCaseByMessageId } from "./getScanCaseByMessageId.js";
 export { listActiveScans } from "./listActiveScans.js";
 export { listExpiredScans } from "./listExpiredScans.js";

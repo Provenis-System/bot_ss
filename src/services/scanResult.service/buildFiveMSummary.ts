@@ -28,14 +28,8 @@ function pickTopSignals(scan: EchoScanDetailsResponse): string[] {
 export function buildFiveMSummary(scan: EchoScanDetailsResponse): string {
   const detection = formatDetectionLabel(scan.detection ?? scan.result);
   const accountCount = scan.accounts?.length ?? 0;
-  const indicationNames =
-    scan.indications
-      ?.filter((indication) => (indication.level ?? 0) >= 1)
-      .slice(0, 3)
-      .map((indication) => indication.name?.trim())
-      .filter((name): name is string => Boolean(name)) ?? [];
   const derivedSignals = pickTopSignals(scan);
-  const signals = indicationNames.length > 0 ? indicationNames : derivedSignals.length > 0 ? derivedSignals : collectSignals(scan.results, "", 3);
+  const signals = derivedSignals.length > 0 ? derivedSignals : collectSignals(scan.results, "", 3);
   const results = isRecord(scan.results) ? scan.results : null;
   const info = isRecord(results?.info) ? results.info : null;
   const vpn = typeof info?.vpn === "string" ? info.vpn : null;

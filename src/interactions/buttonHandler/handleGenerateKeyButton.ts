@@ -1,4 +1,12 @@
-import { MessageFlags, type ButtonInteraction, type Client } from "discord.js";
+import {
+  ContainerBuilder,
+  MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
+  type ButtonInteraction,
+  type Client
+} from "discord.js";
 
 import { buildGameSelectMenu } from "../../interactions/selectMenuHandler.js";
 import { assertStaffPermission } from "../../services/permission.service/index.js";
@@ -12,9 +20,23 @@ export async function handleGenerateKeyButton(input: HandleGenerateKeyButtonInpu
   const { interaction } = input;
 
   await assertStaffPermission(interaction);
+
+  const container = new ContainerBuilder()
+    .setAccentColor(0x5865f2)
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "## 🎮 Selecionar Jogo\n-# Escolha abaixo para qual jogo você quer gerar a chave da Echo."
+      )
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder()
+        .setSpacing(SeparatorSpacingSize.Small)
+        .setDivider(true)
+    )
+    .addActionRowComponents(buildGameSelectMenu(interaction.user.id));
+
   await interaction.reply({
-    content: "Escolha abaixo para qual jogo você quer gerar a chave da Echo.",
-    components: [buildGameSelectMenu(interaction.user.id)],
-    flags: MessageFlags.Ephemeral
+    components: [container],
+    flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2
   });
 }
