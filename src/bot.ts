@@ -12,6 +12,8 @@ import { ensureDatabaseSchema } from "./database/ensureSchema.js";
 import { ensureKeyPanel } from "./panels/keyPanel.js";
 import { ensureTicketConfigPanel } from "./panels/ticketConfigPanel.js";
 import { handleButtonInteraction } from "./interactions/buttonHandler.js";
+import { handleCommandInteraction } from "./interactions/commandHandler.js";
+import { handleModalSubmitInteraction } from "./interactions/modalHandler.js";
 import { handleSelectMenuInteraction } from "./interactions/selectMenuHandler.js";
 import { startScanPoller } from "./jobs/scanPoller.job.js";
 import { prisma } from "./database/prisma.js";
@@ -30,6 +32,11 @@ client.once(Events.ClientReady, async (readyClient) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
+    if (interaction.isChatInputCommand()) {
+      await handleCommandInteraction(client as Client<true>, interaction);
+      return;
+    }
+
     if (interaction.isButton()) {
       await handleButtonInteraction(client as Client<true>, interaction);
       return;
@@ -41,6 +48,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       interaction.isRoleSelectMenu()
     ) {
       await handleSelectMenuInteraction(client as Client<true>, interaction);
+      return;
+    }
+
+    if (interaction.isModalSubmit()) {
+      await handleModalSubmitInteraction(client as Client<true>, interaction);
       return;
     }
   } catch (error) {

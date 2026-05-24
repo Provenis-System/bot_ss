@@ -9,7 +9,8 @@ import type {
 import { handleGameSelectMenu } from "./handleGameSelectMenu.js";
 import {
   handleTicketConfigCategorySelect,
-  handleTicketConfigRolesSelect
+  handleTicketConfigRolesSelect,
+  handleTicketConfigVerdictLogSelect
 } from "./handleTicketConfigSelectMenu.js";
 
 export async function handleSelectMenuInteraction(
@@ -28,6 +29,8 @@ export async function handleSelectMenuInteraction(
     const channelInteraction = interaction as ChannelSelectMenuInteraction;
     if (channelInteraction.customId === "ticket:config:category") {
       await handleTicketConfigCategorySelect(client, channelInteraction);
+    } else if (channelInteraction.customId === "ticket:config:verdict-log") {
+      await handleTicketConfigVerdictLogSelect(client, channelInteraction);
     }
     return;
   }

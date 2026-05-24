@@ -5,7 +5,7 @@ import {
   type ButtonInteraction
 } from "discord.js";
 
-import { assertStaffPermission } from "../../services/permission.service/index.js";
+import { checkStaffPermission } from "../../services/permission.service/index.js";
 import {
   buildFiveMResultView,
   buildResultContainer
@@ -14,13 +14,22 @@ import { getScanCaseByMessageId, logScanAction } from "../../services/scan.servi
 import type { EchoScanDetailsResponse } from "../../types/scan.js";
 
 export async function handleViewResultButton(interaction: ButtonInteraction, caseId: string) {
-  await assertStaffPermission(interaction);
-
   const scanCase = await getScanCaseByMessageId(interaction.message.id);
 
   if (!scanCase || scanCase.id !== caseId) {
     await interaction.reply({
       content: "Caso não encontrado para esta mensagem.",
+      flags: MessageFlags.Ephemeral
+    });
+    return;
+  }
+
+  const isStaff = await checkStaffPermission(interaction);
+  const isCreator = interaction.user.id === scanCase.staffDiscordId;
+
+  if (!isStaff && !isCreator) {
+    await interaction.reply({
+      content: "❌ Você não tem permissão para ver este resultado.",
       flags: MessageFlags.Ephemeral
     });
     return;
@@ -56,6 +65,10 @@ export async function handleViewResultButton(interaction: ButtonInteraction, cas
       .setCustomId(`scan:view-pca:${scanCase.id}`)
       .setLabel("📂 PCA")
       .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(`verdict:open:${scanCase.id}`)
+      .setLabel("⚖️ Veredito")
+      .setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
       .setCustomId(`ticket:open:${scanCase.id}`)
       .setLabel("❓ Dúvida com resultado?")

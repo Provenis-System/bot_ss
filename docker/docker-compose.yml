@@ -1,0 +1,11 @@
+services:
+  bot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: bot_ss_forensic:latest
+    container_name: bot_ss_forensic
+    network_mode: host
+    restart: unless-stopped
+    env_file:
+      - ../.env

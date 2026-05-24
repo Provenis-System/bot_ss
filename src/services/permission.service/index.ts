@@ -1,1 +1,1 @@
-export { assertStaffPermission } from "./assertStaffPermission.js";
+export { assertStaffPermission, checkStaffPermission } from "./assertStaffPermission.js";

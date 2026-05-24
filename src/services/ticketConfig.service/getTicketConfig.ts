@@ -3,6 +3,7 @@ import { prisma } from "../../database/prisma.js";
 export type TicketConfig = {
   categoryId: string | null;
   allowedRoleIds: string[];
+  verdictLogChannelId: string | null;
 };
 
 export async function getTicketConfig(): Promise<TicketConfig> {
@@ -10,6 +11,7 @@ export async function getTicketConfig(): Promise<TicketConfig> {
   const value = setting?.value as Partial<TicketConfig> | null;
   return {
     categoryId: value?.categoryId ?? null,
-    allowedRoleIds: value?.allowedRoleIds ?? []
+    allowedRoleIds: value?.allowedRoleIds ?? [],
+    verdictLogChannelId: value?.verdictLogChannelId ?? null
   };
 }

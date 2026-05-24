@@ -33,10 +33,31 @@ model ScanCase {
   completedAt       DateTime?   @map("completed_at")
   expiresAt         DateTime?   @map("expires_at")
   logs              ScanLog[]
+  verdicts          Verdict[]
 
   @@index([status, expiresAt])
   @@index([staffDiscordId, createdAt])
   @@map("scan_cases")
+}
+
+model Verdict {
+  id              String    @id @default(cuid())
+  scanCaseId      String?   @map("scan_case_id")
+  scanCase        ScanCase? @relation(fields: [scanCaseId], references: [id], onDelete: SetNull)
+  staffDiscordId  String    @map("staff_discord_id")
+  targetDiscordId String    @map("target_discord_id")
+  bannedCity      String    @map("banned_city")
+  verdictType     String    @default("banned") @map("verdict_type")
+  notes           String?
+  proofLink       String?   @map("proof_link")
+  proofFileUrls   String[]  @default([]) @map("proof_file_urls")
+  logChannelId    String?   @map("log_channel_id")
+  logMessageId    String?   @map("log_message_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([targetDiscordId, createdAt])
+  @@index([scanCaseId])
+  @@map("verdicts")
 }
 
 model ScanLog {

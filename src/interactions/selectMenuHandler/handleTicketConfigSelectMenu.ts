@@ -67,3 +67,21 @@ export async function handleTicketConfigRolesSelect(
     content: `✅ Cargos com acesso atualizados: ${roleList}`
   });
 }
+
+export async function handleTicketConfigVerdictLogSelect(
+  client: Client<true>,
+  interaction: ChannelSelectMenuInteraction
+): Promise<void> {
+  await assertStaffPermission(interaction);
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const verdictLogChannelId = interaction.values[0] ?? null;
+  await saveTicketConfig({ verdictLogChannelId });
+  await refreshPanel(client);
+
+  await interaction.editReply({
+    content: verdictLogChannelId
+      ? `✅ Canal de log de vereditos definido: <#${verdictLogChannelId}>`
+      : "✅ Canal de log de vereditos removido."
+  });
+}

@@ -7,7 +7,7 @@ import {
   type ButtonInteraction
 } from "discord.js";
 
-import { assertStaffPermission } from "../../services/permission.service/index.js";
+import { checkStaffPermission } from "../../services/permission.service/index.js";
 import { getScanCaseById } from "../../services/scan.service/index.js";
 import type { EchoScanDetailsResponse } from "../../types/scan.js";
 
@@ -35,13 +35,22 @@ function parsePcaLines(raw: EchoScanDetailsResponse): string[] {
 }
 
 export async function handlePcaButton(interaction: ButtonInteraction, caseId: string) {
-  await assertStaffPermission(interaction);
-
   const scanCase = await getScanCaseById(caseId);
 
   if (!scanCase?.resultRaw) {
     await interaction.reply({
       content: "Dados do PCA não disponíveis para este caso.",
+      flags: MessageFlags.Ephemeral
+    });
+    return;
+  }
+
+  const isStaff = await checkStaffPermission(interaction);
+  const isCreator = interaction.user.id === scanCase.staffDiscordId;
+
+  if (!isStaff && !isCreator) {
+    await interaction.reply({
+      content: "❌ Você não tem permissão para ver o PCA.",
       flags: MessageFlags.Ephemeral
     });
     return;

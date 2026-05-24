@@ -21,7 +21,8 @@ function buildStatusLine(config: TicketConfig): string {
     config.allowedRoleIds.length > 0
       ? config.allowedRoleIds.map((id) => `<@&${id}>`).join(", ")
       : "Nenhum";
-  return `-# Categoria: ${category} | Cargos: ${roles}`;
+  const verdictLog = config.verdictLogChannelId ? `<#${config.verdictLogChannelId}>` : "Não configurado";
+  return `-# Categoria: ${category} | Cargos: ${roles} | Log de Veredito: ${verdictLog}`;
 }
 
 export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
@@ -37,6 +38,13 @@ export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
     .setPlaceholder("Selecione os cargos com acesso")
     .setMinValues(1)
     .setMaxValues(10);
+
+  const verdictLogSelect = new ChannelSelectMenuBuilder()
+    .setCustomId("ticket:config:verdict-log")
+    .setPlaceholder("Selecione o canal de log de vereditos")
+    .setChannelTypes(ChannelType.GuildText)
+    .setMinValues(1)
+    .setMaxValues(1);
 
   return new ContainerBuilder()
     .setAccentColor(0x5865f2)
@@ -62,5 +70,14 @@ export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
     )
     .addActionRowComponents(
       new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect)
+    )
+    .addSeparatorComponents(divider())
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "**📋 Canal de Log de Vereditos**\nSelecione o canal onde os vereditos registrados serão enviados."
+      )
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(verdictLogSelect)
     );
 }
