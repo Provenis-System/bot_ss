@@ -9,8 +9,10 @@ import type {
 import { handleGameSelectMenu } from "./handleGameSelectMenu.js";
 import {
   handleTicketConfigCategorySelect,
+  handleTicketConfigLeaveSelect,
   handleTicketConfigRolesSelect,
-  handleTicketConfigVerdictLogSelect
+  handleTicketConfigVerdictLogSelect,
+  handleTicketConfigWelcomeSelect
 } from "./handleTicketConfigSelectMenu.js";
 
 export async function handleSelectMenuInteraction(
@@ -31,6 +33,10 @@ export async function handleSelectMenuInteraction(
       await handleTicketConfigCategorySelect(client, channelInteraction);
     } else if (channelInteraction.customId === "ticket:config:verdict-log") {
       await handleTicketConfigVerdictLogSelect(client, channelInteraction);
+    } else if (channelInteraction.customId === "ticket:config:welcome") {
+      await handleTicketConfigWelcomeSelect(client, channelInteraction);
+    } else if (channelInteraction.customId === "ticket:config:leave") {
+      await handleTicketConfigLeaveSelect(client, channelInteraction);
     }
     return;
   }

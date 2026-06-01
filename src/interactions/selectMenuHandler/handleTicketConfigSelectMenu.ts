@@ -16,6 +16,7 @@ import {
   saveTicketConfig
 } from "../../services/ticketConfig.service/index.js";
 
+
 async function refreshPanel(client: Client<true>): Promise<void> {
   const setting = await getTicketConfigPanelSetting();
   const messageId = (setting?.value as { messageId?: string } | null)?.messageId;
@@ -83,5 +84,41 @@ export async function handleTicketConfigVerdictLogSelect(
     content: verdictLogChannelId
       ? `✅ Canal de log de vereditos definido: <#${verdictLogChannelId}>`
       : "✅ Canal de log de vereditos removido."
+  });
+}
+
+export async function handleTicketConfigWelcomeSelect(
+  client: Client<true>,
+  interaction: ChannelSelectMenuInteraction
+): Promise<void> {
+  await assertStaffPermission(interaction);
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const welcomeChannelId = interaction.values[0] ?? null;
+  await saveTicketConfig({ welcomeChannelId });
+  await refreshPanel(client);
+
+  await interaction.editReply({
+    content: welcomeChannelId
+      ? `✅ Canal de boas-vindas definido: <#${welcomeChannelId}>`
+      : "✅ Canal de boas-vindas removido."
+  });
+}
+
+export async function handleTicketConfigLeaveSelect(
+  client: Client<true>,
+  interaction: ChannelSelectMenuInteraction
+): Promise<void> {
+  await assertStaffPermission(interaction);
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const leaveChannelId = interaction.values[0] ?? null;
+  await saveTicketConfig({ leaveChannelId });
+  await refreshPanel(client);
+
+  await interaction.editReply({
+    content: leaveChannelId
+      ? `✅ Canal de saída definido: <#${leaveChannelId}>`
+      : "✅ Canal de saída removido."
   });
 }

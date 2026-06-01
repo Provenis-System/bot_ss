@@ -4,6 +4,8 @@ export type TicketConfig = {
   categoryId: string | null;
   allowedRoleIds: string[];
   verdictLogChannelId: string | null;
+  welcomeChannelId: string | null;
+  leaveChannelId: string | null;
 };
 
 export async function getTicketConfig(): Promise<TicketConfig> {
@@ -12,6 +14,8 @@ export async function getTicketConfig(): Promise<TicketConfig> {
   return {
     categoryId: value?.categoryId ?? null,
     allowedRoleIds: value?.allowedRoleIds ?? [],
-    verdictLogChannelId: value?.verdictLogChannelId ?? null
+    verdictLogChannelId: value?.verdictLogChannelId ?? null,
+    welcomeChannelId: value?.welcomeChannelId ?? null,
+    leaveChannelId: value?.leaveChannelId ?? null
   };
 }

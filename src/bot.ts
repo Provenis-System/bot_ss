@@ -16,11 +16,16 @@ import { handleCommandInteraction } from "./interactions/commandHandler.js";
 import { handleModalSubmitInteraction } from "./interactions/modalHandler.js";
 import { handleSelectMenuInteraction } from "./interactions/selectMenuHandler.js";
 import { startScanPoller } from "./jobs/scanPoller.job.js";
+import { handleMemberAdd, handleMemberRemove } from "./events/memberLog.js";
 import { prisma } from "./database/prisma.js";
 import { logger } from "./utils/logger.js";
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers
+  ]
 });
 
 client.once(Events.ClientReady, async (readyClient) => {
@@ -73,6 +78,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await interaction.reply(replyPayload).catch(() => null);
     }
   }
+});
+
+client.on(Events.GuildMemberAdd, (member) => {
+  void handleMemberAdd(client as Client<true>, member);
+});
+
+client.on(Events.GuildMemberRemove, (member) => {
+  void handleMemberRemove(client as Client<true>, member);
 });
 
 client.on(Events.Error, (error) => {

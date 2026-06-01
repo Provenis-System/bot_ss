@@ -22,7 +22,9 @@ function buildStatusLine(config: TicketConfig): string {
       ? config.allowedRoleIds.map((id) => `<@&${id}>`).join(", ")
       : "Nenhum";
   const verdictLog = config.verdictLogChannelId ? `<#${config.verdictLogChannelId}>` : "Não configurado";
-  return `-# Categoria: ${category} | Cargos: ${roles} | Log de Veredito: ${verdictLog}`;
+  const welcome = config.welcomeChannelId ? `<#${config.welcomeChannelId}>` : "Não configurado";
+  const leave = config.leaveChannelId ? `<#${config.leaveChannelId}>` : "Não configurado";
+  return `-# Categoria: ${category} | Cargos: ${roles} | Log Veredito: ${verdictLog} | Boas-vindas: ${welcome} | Saída: ${leave}`;
 }
 
 export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
@@ -42,6 +44,20 @@ export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
   const verdictLogSelect = new ChannelSelectMenuBuilder()
     .setCustomId("ticket:config:verdict-log")
     .setPlaceholder("Selecione o canal de log de vereditos")
+    .setChannelTypes(ChannelType.GuildText)
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  const welcomeSelect = new ChannelSelectMenuBuilder()
+    .setCustomId("ticket:config:welcome")
+    .setPlaceholder("Selecione o canal de boas-vindas")
+    .setChannelTypes(ChannelType.GuildText)
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  const leaveSelect = new ChannelSelectMenuBuilder()
+    .setCustomId("ticket:config:leave")
+    .setPlaceholder("Selecione o canal de saída de membros")
     .setChannelTypes(ChannelType.GuildText)
     .setMinValues(1)
     .setMaxValues(1);
@@ -79,5 +95,23 @@ export function buildTicketConfigPanel(config: TicketConfig): ContainerBuilder {
     )
     .addActionRowComponents(
       new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(verdictLogSelect)
+    )
+    .addSeparatorComponents(divider())
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "**👋 Canal de Boas-vindas**\nSelecione o canal onde a mensagem de entrada de membros será enviada."
+      )
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(welcomeSelect)
+    )
+    .addSeparatorComponents(divider())
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        "**🚪 Canal de Saída**\nSelecione o canal onde a mensagem de saída de membros será enviada."
+      )
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(leaveSelect)
     );
 }
