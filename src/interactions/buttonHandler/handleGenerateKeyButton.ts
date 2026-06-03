@@ -9,7 +9,6 @@ import {
 } from "discord.js";
 
 import { buildGameSelectMenu } from "../../interactions/selectMenuHandler.js";
-import { assertStaffPermission } from "../../services/permission.service/index.js";
 
 type HandleGenerateKeyButtonInput = {
   client: Client<true>;
@@ -18,8 +17,6 @@ type HandleGenerateKeyButtonInput = {
 
 export async function handleGenerateKeyButton(input: HandleGenerateKeyButtonInput) {
   const { interaction } = input;
-
-  await assertStaffPermission(interaction);
 
   const container = new ContainerBuilder()
     .setAccentColor(0x5865f2)
