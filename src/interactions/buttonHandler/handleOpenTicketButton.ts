@@ -15,7 +15,6 @@ import {
   type TextChannel
 } from "discord.js";
 
-import { assertStaffPermission } from "../../services/permission.service/index.js";
 import {
   buildFiveMResultView,
   buildResultContainer
@@ -32,7 +31,6 @@ export async function handleOpenTicketButton(
   interaction: ButtonInteraction,
   caseId: string
 ): Promise<void> {
-  await assertStaffPermission(interaction);
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const config = await getTicketConfig();

@@ -8,7 +8,6 @@ import {
   type ModalSubmitInteraction
 } from "discord.js";
 
-import { assertStaffPermission } from "../../services/permission.service/index.js";
 import { VERDICT_TYPE_LABELS } from "../buttonHandler/handleVerdictButton.js";
 import {
   createVerdict,
@@ -30,7 +29,6 @@ export async function handleVerdictModal(
   interaction: ModalSubmitInteraction,
   caseId: string
 ): Promise<void> {
-  await assertStaffPermission(interaction);
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   const verdictType = interaction.fields.getRadioGroup("verdict_type", true) ?? "banned";

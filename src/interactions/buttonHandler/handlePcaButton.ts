@@ -7,7 +7,6 @@ import {
   type ButtonInteraction
 } from "discord.js";
 
-import { checkStaffPermission } from "../../services/permission.service/index.js";
 import { getScanCaseById } from "../../services/scan.service/index.js";
 import type { EchoScanDetailsResponse } from "../../types/scan.js";
 
@@ -39,18 +38,7 @@ export async function handlePcaButton(interaction: ButtonInteraction, caseId: st
 
   if (!scanCase?.resultRaw) {
     await interaction.reply({
-      content: "Dados do PCA não disponíveis para este caso.",
-      flags: MessageFlags.Ephemeral
-    });
-    return;
-  }
-
-  const isStaff = await checkStaffPermission(interaction);
-  const isCreator = interaction.user.id === scanCase.staffDiscordId;
-
-  if (!isStaff && !isCreator) {
-    await interaction.reply({
-      content: "❌ Você não tem permissão para ver o PCA.",
+      content: "Dados do PCA nao disponiveis para este caso.",
       flags: MessageFlags.Ephemeral
     });
     return;
@@ -86,7 +74,7 @@ export async function handlePcaButton(interaction: ButtonInteraction, caseId: st
     .setAccentColor(0x5865f2)
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        `## 📂 Detalhes do PCA\n-# ${lines.length} processo(s) únicos registrados`
+        `## Detalhes do PCA\n-# ${lines.length} processo(s) unicos registrados`
       )
     );
 

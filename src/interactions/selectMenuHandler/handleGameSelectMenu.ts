@@ -14,7 +14,6 @@ import { env } from "../../config/env.js";
 import { sendTrackingPanel } from "../../panels/trackingPanel.js";
 import { generateEchoPin } from "../../services/echo.service/index.js";
 import { assertSupportedGame, getGameOption } from "../../services/gameSelection.service/index.js";
-import { assertStaffPermission } from "../../services/permission.service/index.js";
 import {
   createScanCase,
   logScanAction,
@@ -34,8 +33,6 @@ function resolveGameLink(game: SupportedGameKey, links?: Partial<Record<Supporte
 
 export async function handleGameSelectMenu(input: HandleGameSelectMenuInput) {
   const { client, interaction } = input;
-
-  await assertStaffPermission(interaction);
 
   const [, , requesterId] = interaction.customId.split(":");
   if (requesterId !== interaction.user.id) {

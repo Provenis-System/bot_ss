@@ -9,8 +9,6 @@ import {
   type ButtonInteraction
 } from "discord.js";
 
-import { assertStaffPermission } from "../../services/permission.service/index.js";
-
 export const VERDICT_TYPE_LABELS: Record<string, string> = {
   banned: "🔴 Banido",
   clean: "🟢 Limpo",
@@ -21,8 +19,6 @@ export async function handleVerdictButton(
   interaction: ButtonInteraction,
   caseId: string
 ): Promise<void> {
-  await assertStaffPermission(interaction);
-
   const modal = new ModalBuilder()
     .setCustomId(`verdict:submit:${caseId}`)
     .setTitle("⚖️ Emitir Veredito")
